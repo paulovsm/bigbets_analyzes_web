@@ -1,0 +1,20 @@
+.toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    color: var(--foreground);
+    transition: background-color 0.2s;
+}
+
+.toggle:hover {
+    background-color: var(--accent);
+}
