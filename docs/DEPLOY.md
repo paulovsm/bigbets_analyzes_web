@@ -51,6 +51,8 @@ O Netlify também suporta Next.js via "Next.js Runtime".
 6. Clique em **"Deploy site"**.
 
 > **Nota**: O Netlify deve instalar automaticamente o plugin "Essential Next.js" durante o build. Se houver erros, verifique se a versão do Node.js está compatível (pode definir `NODE_VERSION` como `20` nas variáveis de ambiente se necessário).
+>
+> **Segurança**: O projeto inclui um arquivo `netlify.toml` na raiz que configura automaticamente o build e previne falsos positivos no scanner de segredos do Netlify (que pode bloquear o deploy por detectar a chave pública do Supabase no código client-side).
 
 ---
 
