@@ -6,4 +6,4 @@
 [build.environment]
   # Netlify Secrets Scanning often flags the public anon key in the build output (Next.js client bundle).
   # Since this key is intentionally public (NEXT_PUBLIC_), we instruct Netlify to ignore it.
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_URL"
