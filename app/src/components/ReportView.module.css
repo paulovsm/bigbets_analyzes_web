@@ -86,6 +86,44 @@
     color: var(--primary-foreground);
 }
 
+/* Mobile Navigation - Dropdown */
+.mobileNavContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mobileNavLabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mobileSelect {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--card);
+    color: var(--foreground);
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.mobileSelect:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(var(--primary), 0.1);
+}
+
+.mobileSelect option {
+    padding: 0.5rem;
+}
+
 .content {
     flex: 1;
     padding: 2rem 3rem;
@@ -413,6 +451,7 @@
     line-height: 1.1;
     margin-bottom: 1rem;
     background: linear-gradient(to right, var(--foreground), var(--muted-foreground));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -751,4 +790,221 @@
     padding-top: 1rem;
     border-top: 1px solid var(--border);
     font-size: 0.9rem;
+}
+
+/* Additional Mobile Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1rem;
+        overflow-x: visible;
+        /* Changed from auto to visible */
+        overflow-y: visible;
+    }
+
+    .studyInfo {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .studyInfo h2 {
+        font-size: 1rem;
+    }
+
+    .studyInfo p {
+        font-size: 0.8rem;
+    }
+
+    .nav {
+        flex-direction: row;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .navItem {
+        white-space: nowrap;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .navLabel {
+        display: inline;
+    }
+
+    .content {
+        padding: 1.5rem 1rem;
+    }
+
+    .section h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .statCard {
+        padding: 1rem;
+    }
+
+    .statCard h3 {
+        font-size: 0.8rem;
+    }
+
+    .statCard p {
+        font-size: 1.5rem;
+    }
+
+    .whitespacesGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .whitespaceCard {
+        padding: 1rem;
+    }
+
+    .wsHeader h3 {
+        font-size: 1rem;
+    }
+
+    /* Dashboard Styles for Mobile */
+    .dashboardHeader {
+        padding: 1.5rem 1rem;
+    }
+
+    .headerTitle {
+        font-size: 1.75rem;
+    }
+
+    .metricsRow {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .metricCard {
+        padding: 1rem;
+    }
+
+    .metricValue {
+        font-size: 1.5rem;
+    }
+
+    .bentoGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .dashboardCard {
+        padding: 1.25rem;
+    }
+
+    .cardHeader {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .marketTable th,
+    .marketTable td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .descriptionText {
+        font-size: 0.95rem;
+    }
+
+    .reportContent {
+        padding: 1.25rem;
+    }
+
+    .chapterTitle {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        padding: 0.75rem;
+    }
+
+    .content {
+        padding: 1rem 0.75rem;
+    }
+
+    .section h1 {
+        font-size: 1.25rem;
+    }
+
+    .navItem {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+        gap: 0.5rem;
+    }
+
+    .whitespacesSection h2 {
+        font-size: 1.25rem;
+    }
+
+    .dashboardHeader {
+        padding: 1rem 0.75rem;
+    }
+
+    .headerTitle {
+        font-size: 1.5rem;
+    }
+
+    .backButton {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .metricValue {
+        font-size: 1.25rem;
+    }
+
+    .metricLabel {
+        font-size: 0.8rem;
+    }
+
+    .dashboardCard {
+        padding: 1rem;
+    }
+
+    .cardHeader {
+        font-size: 0.95rem;
+        gap: 0.5rem;
+    }
+
+    .reportContent {
+        padding: 1rem;
+    }
+
+    .chapterTitle {
+        font-size: 1.1rem;
+    }
+
+    .marketTable {
+        font-size: 0.8rem;
+    }
+
+    .marketTable th,
+    .marketTable td {
+        padding: 0.4rem 0.5rem;
+    }
 }

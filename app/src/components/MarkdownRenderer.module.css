@@ -89,3 +89,91 @@
     background-color: transparent;
     padding: 0;
 }
+
+/* Table Wrapper - Responsive with scroll indicators */
+.tableWrapper {
+    display: block;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    position: relative;
+    /* Prevent table from expanding container */
+    max-width: 100%;
+    /* Smooth scroll for touch devices */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    /* Visual scroll indicators using gradients */
+    background:
+        /* Left fade indicator */
+        linear-gradient(to right, var(--card) 30%, transparent),
+        /* Right fade indicator */
+        linear-gradient(to left, var(--card) 30%, transparent),
+        /* Left shadow when scrolled */
+        linear-gradient(to right, rgba(0, 0, 0, .15), transparent 20px),
+        /* Right shadow */
+        linear-gradient(to left, rgba(0, 0, 0, .15), transparent 20px);
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 20px 100%, 20px 100%;
+    background-position: 0 0, 100% 0, 0 0, 100% 0;
+    /* Local for fade, scroll for shadows */
+    background-attachment: local, local, scroll, scroll;
+}
+
+.tableWrapper table {
+    display: table;
+    margin-bottom: 0;
+    border: none;
+    /* Force table to be wider than container */
+    width: max-content;
+    min-width: 100%;
+}
+
+/* Hint container - positioned outside/below scrollable area */
+.tableHint {
+    display: block;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    padding: 0.5rem;
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-weight: 500;
+    margin-top: -1px;
+    margin-bottom: 1.5rem;
+}
+
+/* Mobile hint for table scrolling */
+@media (max-width: 768px) {
+    .tableWrapper {
+        /* Ensure scrollbar is visible on mobile */
+        scrollbar-width: thin;
+    }
+
+    .tableWrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .tableWrapper::-webkit-scrollbar-track {
+        background: var(--secondary);
+        border-radius: var(--radius);
+    }
+
+    .tableWrapper::-webkit-scrollbar-thumb {
+        background: var(--muted-foreground);
+        border-radius: var(--radius);
+    }
+
+    .tableWrapper table {
+        font-size: 0.9rem;
+    }
+
+    .markdown th,
+    .markdown td {
+        padding: 0.5rem;
+        white-space: nowrap;
+    }
+}

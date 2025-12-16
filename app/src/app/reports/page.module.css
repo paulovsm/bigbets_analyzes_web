@@ -46,3 +46,49 @@
 .searchContainer {
     margin-top: 2rem;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 4rem 1rem 2rem 1rem;
+    }
+
+    .header {
+        margin-bottom: 2rem;
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .searchContainer {
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 3rem 0.75rem 2rem 0.75rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+    }
+
+    .grid {
+        gap: 1rem;
+    }
+}

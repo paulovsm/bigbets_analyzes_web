@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { LayoutDashboard, TrendingUp, ShoppingCart, Users, Lightbulb, ChevronRight, FileText, ArrowLeft, Target, AlertTriangle, TrendingDown, PieChart, BarChart, ArrowUpRight, Info, CheckCircle, XCircle } from 'lucide-react'
@@ -83,6 +83,18 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
     const [subSelection, setSubSelection] = useState<Record<string, string>>({})
     // State for dedicated whitespace detail view
     const [selectedWhitespace, setSelectedWhitespace] = useState<any>(null)
+    // State to track if we're on mobile
+    const [isMobile, setIsMobile] = useState(false)
+
+    // Detect mobile viewport
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768)
+        }
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
 
     // Helper to safely parse JSON lists that might be double-encoded or just strings
     const parseList = (data: any): string[] => {
@@ -203,32 +215,56 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                     <h2>{study.target_industry}</h2>
                     <p>{study.target_region}</p>
                 </div>
-                <nav className={styles.nav}>
-                    <button
-                        onClick={() => handleTabChange('overview')}
-                        className={cn(styles.navItem, activeTab === 'overview' && styles.active)}
-                    >
-                        <LayoutDashboard size={18} />
-                        Visão Geral
-                    </button>
+                {isMobile ? (
+                    /* Mobile Dropdown Navigation */
+                    <div className={styles.mobileNavContainer}>
+                        <label htmlFor="section-select" className={styles.mobileNavLabel}>Seção:</label>
+                        <select
+                            id="section-select"
+                            value={activeTab}
+                            onChange={(e) => handleTabChange(e.target.value)}
+                            className={styles.mobileSelect}
+                        >
+                            <option value="overview">Visão Geral</option>
+                            {Object.entries(REPORT_STRUCTURE).map(([catId, config]) => {
+                                const availableCount = categoryContent[catId]?.length || 0
+                                return (
+                                    <option key={catId} value={catId}>
+                                        {config.label} {availableCount > 0 ? `(${availableCount})` : ''}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                ) : (
+                    /* Desktop Navigation */
+                    <nav className={styles.nav}>
+                        <button
+                            onClick={() => handleTabChange('overview')}
+                            className={cn(styles.navItem, activeTab === 'overview' && styles.active)}
+                        >
+                            <LayoutDashboard size={18} />
+                            Visão Geral
+                        </button>
 
-                    {Object.entries(REPORT_STRUCTURE).map(([catId, config]) => {
-                        const Icon = config.icon
-                        const availableCount = categoryContent[catId]?.length || 0
+                        {Object.entries(REPORT_STRUCTURE).map(([catId, config]) => {
+                            const Icon = config.icon
+                            const availableCount = categoryContent[catId]?.length || 0
 
-                        return (
-                            <button
-                                key={catId}
-                                onClick={() => handleTabChange(catId)}
-                                className={cn(styles.navItem, activeTab === catId && styles.active)}
-                            >
-                                <Icon size={18} />
-                                <span className={styles.navLabel}>{config.label}</span>
-                                {availableCount > 0 && <span className={styles.badge}>{availableCount}</span>}
-                            </button>
-                        )
-                    })}
-                </nav>
+                            return (
+                                <button
+                                    key={catId}
+                                    onClick={() => handleTabChange(catId)}
+                                    className={cn(styles.navItem, activeTab === catId && styles.active)}
+                                >
+                                    <Icon size={18} />
+                                    <span className={styles.navLabel}>{config.label}</span>
+                                    {availableCount > 0 && <span className={styles.badge}>{availableCount}</span>}
+                                </button>
+                            )
+                        })}
+                    </nav>
+                )}
             </div>
 
             {/* Main Content Area */}
@@ -506,21 +542,38 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                             <div className={styles.reportContainer}>
                                                 <div className={styles.subSidebar}>
                                                     <h3>Capítulos</h3>
-                                                    <div className={styles.subList}>
-                                                        {categoryContent[activeTab].map((report: any) => (
-                                                            <button
-                                                                key={report.key}
-                                                                onClick={() => setSubSelection(prev => ({ ...prev, [activeTab]: report.key }))}
-                                                                className={cn(
-                                                                    styles.subItem,
-                                                                    subSelection[activeTab] === report.key && styles.subItemActive
-                                                                )}
-                                                            >
-                                                                <span className={styles.dot}></span>
-                                                                {report.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
+                                                    {isMobile ? (
+                                                        /* Mobile Dropdown for Chapters */
+                                                        <select
+                                                            value={subSelection[activeTab] || ''}
+                                                            onChange={(e) => setSubSelection(prev => ({ ...prev, [activeTab]: e.target.value }))}
+                                                            className={styles.mobileSelect}
+                                                        >
+                                                            <option value="">Selecione um capítulo</option>
+                                                            {categoryContent[activeTab].map((report: any) => (
+                                                                <option key={report.key} value={report.key}>
+                                                                    {report.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        /* Desktop Pills Navigation */
+                                                        <div className={styles.subList}>
+                                                            {categoryContent[activeTab].map((report: any) => (
+                                                                <button
+                                                                    key={report.key}
+                                                                    onClick={() => setSubSelection(prev => ({ ...prev, [activeTab]: report.key }))}
+                                                                    className={cn(
+                                                                        styles.subItem,
+                                                                        subSelection[activeTab] === report.key && styles.subItemActive
+                                                                    )}
+                                                                >
+                                                                    <span className={styles.dot}></span>
+                                                                    {report.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className={styles.reportContent}>
