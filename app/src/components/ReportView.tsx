@@ -512,7 +512,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                             </div>
                                             <div className={styles.statCard}>
                                                 <h3>Total de Relatórios</h3>
-                                                <p>{reports.length}</p>
+                                                <p>{new Set(reports.map(r => r.report_key)).size}</p>
                                             </div>
                                             <div className={styles.statCard}>
                                                 <h3>Whitespaces</h3>
