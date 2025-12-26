@@ -40,6 +40,48 @@
     color: var(--muted-foreground);
 }
 
+.refreshButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+
+.refreshButton:hover:not(:disabled) {
+    background: var(--secondary);
+    color: var(--foreground);
+    border-color: var(--primary);
+}
+
+.refreshButton:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .nav {
     display: flex;
     flex-direction: column;
@@ -262,7 +304,39 @@
     color: var(--foreground);
     border-bottom: 1px solid var(--border);
     padding-bottom: 0.5rem;
+    margin-bottom: 0;
+    border-bottom: none;
+    flex: 1;
 }
+
+.chapterHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.versionSelector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+}
+
+.versionSelector select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
 
 .emptyState {
     display: flex;

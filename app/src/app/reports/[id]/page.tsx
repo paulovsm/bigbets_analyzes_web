@@ -61,6 +61,7 @@ export default async function StudyPage({ params }: PageProps) {
             .from('study_reports')
             .select('*')
             .eq('study_id', id)
+            .order('version', { ascending: false })
 
         reports = reportsRes.data || []
 

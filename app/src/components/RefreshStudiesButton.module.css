@@ -1,0 +1,41 @@
+.button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 100%;
+    /* Match height of search input if needed */
+    white-space: nowrap;
+}
+
+.button:hover:not(:disabled) {
+    background: var(--secondary);
+    color: var(--foreground);
+    border-color: var(--primary);
+}
+
+.button:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

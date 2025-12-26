@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { StudyCard } from '@/components/StudyCard'
-import { SearchInput } from '@/components/SearchInput' // Import the new component
+import { SearchInput } from '@/components/SearchInput'
+import { RefreshStudiesButton } from '@/components/RefreshStudiesButton'
 import styles from './page.module.css'
 
 // Mock data if DB connection fails
@@ -82,8 +83,11 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
                 <p className={styles.subtitle}>
                     Acompanhe os estudos gerados pelos agentes autônomos.
                 </p>
-                <div className={styles.searchContainer}>
-                    <SearchInput />
+                <div className={styles.controlsContainer}>
+                    <div className={styles.searchWrapper}>
+                        <SearchInput />
+                    </div>
+                    <RefreshStudiesButton />
                 </div>
             </header>
 

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MarkdownRenderer } from './MarkdownRenderer'
-import { LayoutDashboard, TrendingUp, ShoppingCart, Users, Lightbulb, ChevronRight, FileText, ArrowLeft, Target, AlertTriangle, TrendingDown, PieChart, BarChart, ArrowUpRight, Info, CheckCircle, XCircle } from 'lucide-react'
+import { LayoutDashboard, TrendingUp, ShoppingCart, Users, Lightbulb, ChevronRight, FileText, ArrowLeft, Target, AlertTriangle, TrendingDown, PieChart, BarChart, ArrowUpRight, Info, CheckCircle, XCircle, RefreshCw } from 'lucide-react'
 import styles from './ReportView.module.css'
 import { cn } from '@/lib/utils'
 
@@ -78,13 +79,25 @@ const REPORT_STRUCTURE = {
 }
 
 export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
+    const router = useRouter()
     const [activeTab, setActiveTab] = useState('overview')
     // State to track selected sub-report for each main category
     const [subSelection, setSubSelection] = useState<Record<string, string>>({})
+    // State to track selected version for each report key
+    const [selectedVersions, setSelectedVersions] = useState<Record<string, number>>({})
     // State for dedicated whitespace detail view
     const [selectedWhitespace, setSelectedWhitespace] = useState<any>(null)
     // State to track if we're on mobile
     const [isMobile, setIsMobile] = useState(false)
+    const [isRefreshing, setIsRefreshing] = useState(false)
+
+    const handleRefresh = useCallback(async () => {
+        setIsRefreshing(true)
+        router.refresh()
+        // Artificial delay to show the animation (since router.refresh is sometimes too fast or invisible)
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        setIsRefreshing(false)
+    }, [router])
 
     // Detect mobile viewport
     useEffect(() => {
@@ -179,16 +192,43 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
             .replace(/_/g, ' ')
     }
 
-    // Group available reports by category
+    // Group available reports by category and then by key/version
     const categoryContent = useMemo(() => {
         const grouped: Record<string, any[]> = {}
 
         Object.entries(REPORT_STRUCTURE).forEach(([catId, config]) => {
             // Find all reports that match the keys for this category
-            const catReports = config.keys.map(key => {
-                const found = reports.find(r => r.report_key === key || r.report_key?.includes(key))
-                return found ? { ...found, label: formatLabel(key), key } : null
-            }).filter(Boolean)
+            const distinctKeys = new Set<string>()
+            const reportsForKey: Record<string, any[]> = {}
+
+            // First pass: collect all reports for valid keys
+            reports.forEach(r => {
+                const matchedKey = config.keys.find(k => r.report_key === k || r.report_key?.includes(k))
+                if (matchedKey) {
+                    distinctKeys.add(matchedKey)
+                    if (!reportsForKey[matchedKey]) {
+                        reportsForKey[matchedKey] = []
+                    }
+                    reportsForKey[matchedKey].push(r)
+                }
+            })
+
+            // Sort versions for each key (assuming reports are already sorted by version desc from DB, but safe to ensure)
+            Object.keys(reportsForKey).forEach(key => {
+                reportsForKey[key].sort((a, b) => (b.version || 1) - (a.version || 1))
+            })
+
+            // Construct the final list for this category
+            const catReports = Array.from(distinctKeys).map(key => {
+                const versions = reportsForKey[key]
+                const latest = versions[0]
+                return {
+                    ...latest,
+                    label: formatLabel(key),
+                    key,
+                    versions // Store all available versions
+                }
+            })
 
             grouped[catId] = catReports
         })
@@ -214,6 +254,16 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                 <div className={styles.studyInfo}>
                     <h2>{study.target_industry}</h2>
                     <p>{study.target_region}</p>
+                    {activeTab !== 'overview' && (
+                        <button
+                            onClick={handleRefresh}
+                            className={styles.refreshButton}
+                            disabled={isRefreshing}
+                        >
+                            <RefreshCw size={14} className={isRefreshing ? styles.spinning : ''} />
+                            Atualizar Dados
+                        </button>
+                    )}
                 </div>
                 {isMobile ? (
                     /* Mobile Dropdown Navigation */
@@ -579,9 +629,50 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                 <div className={styles.reportContent}>
                                                     {subSelection[activeTab] ? (
                                                         <div className={styles.markdownWrapper}>
-                                                            <h2 className={styles.chapterTitle}>{categoryContent[activeTab].find(r => r.key === subSelection[activeTab])?.label}</h2>
+                                                            <div className={styles.chapterHeader}>
+                                                                <h2 className={styles.chapterTitle}>{categoryContent[activeTab].find(r => r.key === subSelection[activeTab])?.label}</h2>
+
+                                                                {/* Version Selector */}
+                                                                {(() => {
+                                                                    const currentReport = categoryContent[activeTab].find(r => r.key === subSelection[activeTab])
+                                                                    if (currentReport && currentReport.versions && currentReport.versions.length > 1) {
+                                                                        const selectedVer = selectedVersions[currentReport.key] || currentReport.version || 1
+
+                                                                        return (
+                                                                            <div className={styles.versionSelector}>
+                                                                                <label>Versão:</label>
+                                                                                <select
+                                                                                    value={selectedVer}
+                                                                                    onChange={(e) => setSelectedVersions(prev => ({
+                                                                                        ...prev,
+                                                                                        [currentReport.key]: Number(e.target.value)
+                                                                                    }))}
+                                                                                >
+                                                                                    {currentReport.versions.map((v: any) => (
+                                                                                        <option key={v.version} value={v.version}>
+                                                                                            v{v.version} {v.version === currentReport.versions[0].version ? '(Atual)' : ''}
+                                                                                        </option>
+                                                                                    ))}
+                                                                                </select>
+                                                                            </div>
+                                                                        )
+                                                                    }
+                                                                    return null
+                                                                })()}
+                                                            </div>
+
                                                             <MarkdownRenderer
-                                                                content={categoryContent[activeTab].find(r => r.key === subSelection[activeTab])?.content || ''}
+                                                                content={(() => {
+                                                                    const currentReport = categoryContent[activeTab].find(r => r.key === subSelection[activeTab])
+                                                                    if (!currentReport) return ''
+
+                                                                    const selectedVer = selectedVersions[currentReport.key]
+                                                                    if (selectedVer && currentReport.versions) {
+                                                                        const layout = currentReport.versions.find((v: any) => v.version === selectedVer)
+                                                                        return layout ? layout.content : currentReport.content
+                                                                    }
+                                                                    return currentReport.content
+                                                                })()}
                                                             />
                                                         </div>
                                                     ) : (
