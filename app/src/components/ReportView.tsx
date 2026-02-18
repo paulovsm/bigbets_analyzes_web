@@ -291,6 +291,8 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
     const handleTabChange = (tabId: string) => {
         setActiveTab(tabId)
+        // Dismiss whitespace detail view when navigating to another section
+        setSelectedWhitespace(null)
         // If switching to a category and no sub-selection exists, select the first available report
         if (categoryContent[tabId]?.length > 0 && !subSelection[tabId]) {
             setSubSelection(prev => ({
@@ -372,7 +374,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
             <main className={styles.content}>
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={activeTab}
+                        key={selectedWhitespace ? `ws-${selectedWhitespace.id}` : activeTab}
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -10 }}
