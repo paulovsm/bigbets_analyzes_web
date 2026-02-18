@@ -109,24 +109,60 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
-    // Helper to safely parse JSON lists that might be double-encoded or just strings
+    // Auto-refresh data every 5 minutes
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.refresh()
+        }, 5 * 60 * 1000)
+        return () => clearInterval(interval)
+    }, [router])
+
+    // Helper to safely parse JSON lists that might be double-encoded or just strings.
+    // Also flattens array items that are objects (e.g. {stage, description}) into strings.
     const parseList = (data: any): string[] => {
         if (!data) return []
-        if (Array.isArray(data)) return data
+
+        const flattenItem = (item: any): string => {
+            if (typeof item === 'string') return item
+            if (typeof item === 'object' && item !== null) {
+                // Handle {stage, description} shape: combine both fields
+                if (item.stage && item.description) return `${item.stage}: ${item.description}`
+                if (item.description) return String(item.description)
+                if (item.stage) return String(item.stage)
+                return JSON.stringify(item)
+            }
+            return String(item)
+        }
+
+        if (Array.isArray(data)) return data.map(flattenItem)
+
         try {
             const parsed = JSON.parse(data)
             if (typeof parsed === 'string') {
                 try {
                     const doubleParsed = JSON.parse(parsed)
-                    return Array.isArray(doubleParsed) ? doubleParsed : [parsed]
+                    return Array.isArray(doubleParsed) ? doubleParsed.map(flattenItem) : [parsed]
                 } catch {
                     return [parsed]
                 }
             }
-            return Array.isArray(parsed) ? parsed : [parsed]
+            return Array.isArray(parsed) ? parsed.map(flattenItem) : [flattenItem(parsed)]
         } catch (e) {
             return [String(data)]
         }
+    }
+
+    // Helper to safely extract a string from description fields that may be objects like {stage, description}
+    const parseDescription = (data: any): string => {
+        if (!data) return ''
+        if (typeof data === 'string') return data
+        if (typeof data === 'object') {
+            // Handle {stage, description} shape
+            if (data.description) return String(data.description)
+            // Fallback: stringify the object
+            return JSON.stringify(data)
+        }
+        return String(data)
     }
 
     // Helper to properly format the calculation assumptions object
@@ -157,11 +193,22 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
         return (
             <ul className={styles.dashboardList}>
-                {Object.entries(parsedData).map(([key, value], i) => (
-                    <li key={i}>
-                        <strong>{key}:</strong> {String(value)}
-                    </li>
-                ))}
+                {Object.entries(parsedData).map(([key, value], i) => {
+                    let displayValue: string
+                    if (value !== null && typeof value === 'object') {
+                        // Format nested objects like {low, mid, high} as "low: X | mid: Y | high: Z"
+                        displayValue = Object.entries(value as Record<string, any>)
+                            .map(([k, v]) => `${k}: ${v}`)
+                            .join(' | ')
+                    } else {
+                        displayValue = String(value)
+                    }
+                    return (
+                        <li key={i}>
+                            <strong>{key}:</strong> {displayValue}
+                        </li>
+                    )
+                })}
             </ul>
         )
     }
@@ -218,7 +265,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                 reportsForKey[key].sort((a, b) => (b.version || 1) - (a.version || 1))
             })
 
-            // Construct the final list for this category
+            // Construct the final list for this category, sorted numerically by chapter number
             const catReports = Array.from(distinctKeys).map(key => {
                 const versions = reportsForKey[key]
                 const latest = versions[0]
@@ -228,6 +275,12 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                     key,
                     versions // Store all available versions
                 }
+            }).sort((a, b) => {
+                // Parse numeric parts from keys like '2.6.ma_movements' -> [2, 6]
+                const parseKeyParts = (k: string) => k.split('.').slice(0, 2).map(Number)
+                const [aMajor, aMinor] = parseKeyParts(a.key)
+                const [bMajor, bMinor] = parseKeyParts(b.key)
+                return aMajor !== bMajor ? aMajor - bMajor : aMinor - bMinor
             })
 
             grouped[catId] = catReports
@@ -252,18 +305,16 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
             {/* Sidebar Navigation */}
             <div className={styles.sidebar}>
                 <div className={styles.studyInfo}>
-                    <h2>{study.target_industry}</h2>
-                    <p>{study.target_region}</p>
-                    {activeTab !== 'overview' && (
-                        <button
-                            onClick={handleRefresh}
-                            className={styles.refreshButton}
-                            disabled={isRefreshing}
-                        >
-                            <RefreshCw size={14} className={isRefreshing ? styles.spinning : ''} />
-                            Atualizar Dados
-                        </button>
-                    )}
+                    <h2>{String(study.target_industry ?? '')}</h2>
+                    <p>{String(study.target_region ?? '')}</p>
+                    <button
+                        onClick={handleRefresh}
+                        className={styles.refreshButton}
+                        disabled={isRefreshing}
+                    >
+                        <RefreshCw size={14} className={isRefreshing ? styles.spinning : ''} />
+                        Atualizar Dados
+                    </button>
                 </div>
                 {isMobile ? (
                     /* Mobile Dropdown Navigation */
@@ -344,11 +395,11 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.headerBadges}>
                                             <div className={styles.statusBadge}>
                                                 <Target size={14} />
-                                                <span>Sinal: {selectedWhitespace.signal_strength_rank}/10</span>
+                                                <span>Sinal: {String(selectedWhitespace.signal_strength_rank ?? '')}/10</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <h1 className={styles.headerTitle}>{selectedWhitespace.name}</h1>
+                                    <h1 className={styles.headerTitle}>{String(selectedWhitespace.name ?? '')}</h1>
                                 </div>
 
                                 {/* 2. Key Metrics Row */}
@@ -384,13 +435,13 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                 <Info className={styles.cardIcon} size={20} />
                                                 Descrição da Oportunidade
                                             </div>
-                                            <p className={styles.descriptionText}>{selectedWhitespace.description}</p>
+                                            <p className={styles.descriptionText}>{parseDescription(selectedWhitespace.description)}</p>
                                         </div>
 
                                         <div className={styles.dashboardCard}>
                                             <div className={styles.cardHeader}>
                                                 <TrendingUp className={styles.cardIcon} size={20} />
-                                                Análise de Mercado (TAM & SAM)
+                                                Análise de Mercado (TAM &amp; SAM)
                                             </div>
                                             <table className={styles.marketTable}>
                                                 <thead>
@@ -427,7 +478,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                             </div>
                                             <div className={styles.assumptionsContainer}>
                                                 <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>Metodologia</h4>
-                                                <p className={styles.descriptionText} style={{ marginBottom: '1.5rem' }}>{selectedWhitespace.calculation_methodology || 'Não especificada.'}</p>
+                                                <p className={styles.descriptionText} style={{ marginBottom: '1.5rem' }}>{parseDescription(selectedWhitespace.calculation_methodology) || 'Não especificada.'}</p>
 
                                                 {selectedWhitespace.key_assumptions && parseList(selectedWhitespace.key_assumptions).length > 0 && (
                                                     <>
@@ -508,7 +559,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.statsGrid}>
                                             <div className={styles.statCard}>
                                                 <h3>Status</h3>
-                                                <p>{study.status}</p>
+                                                <p>{String(study.status ?? '')}</p>
                                             </div>
                                             <div className={styles.statCard}>
                                                 <h3>Total de Relatórios</h3>
@@ -532,10 +583,10 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                             role="button"
                                                         >
                                                             <div className={styles.wsHeader}>
-                                                                <h3>{ws.name}</h3>
-                                                                <span className={styles.rank}>Força do Sinal: {ws.signal_strength_rank}/10</span>
+                                                                <h3>{String(ws.name ?? '')}</h3>
+                                                                <span className={styles.rank}>Força do Sinal: {String(ws.signal_strength_rank ?? '')}/10</span>
                                                             </div>
-                                                            <p className={styles.wsDesc}>{ws.description}</p>
+                                                            <p className={styles.wsDesc}>{parseDescription(ws.description)}</p>
 
                                                             {/* Preview Details */}
                                                             <div className={styles.wsDetails}>
@@ -700,10 +751,10 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                             role="button"
                                                         >
                                                             <div className={styles.wsHeader}>
-                                                                <h3>{ws.name}</h3>
-                                                                <span className={styles.rank}>Força do Sinal: {ws.signal_strength_rank}/10</span>
+                                                                <h3>{String(ws.name ?? '')}</h3>
+                                                                <span className={styles.rank}>Força do Sinal: {String(ws.signal_strength_rank ?? '')}/10</span>
                                                             </div>
-                                                            <p className={styles.wsDesc}>{ws.description}</p>
+                                                            <p className={styles.wsDesc}>{parseDescription(ws.description)}</p>
 
                                                             <div className={styles.wsDetails}>
                                                                 {ws.demand_signals && (
@@ -752,6 +803,6 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                     </motion.div>
                 </AnimatePresence>
             </main>
-        </div >
+        </div>
     )
 }

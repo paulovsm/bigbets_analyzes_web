@@ -36,6 +36,38 @@ function getMockData(id: string) {
     }
 }
 
+/**
+ * Recursively sanitize a value so that any field that is an object
+ * with {stage, description} shape (or any plain object) gets converted
+ * to a string before being passed as a React child.
+ * This prevents the "Objects are not valid as a React child" error when
+ * the database stores structured objects instead of plain strings.
+ */
+function sanitizeWhitespace(ws: Record<string, any>): Record<string, any> {
+    const stringFields = [
+        'name',
+        'description',
+        'calculation_methodology',
+        'niche_name',
+        'niche_description',
+    ]
+
+    const result: Record<string, any> = { ...ws }
+
+    for (const field of stringFields) {
+        if (result[field] !== null && result[field] !== undefined && typeof result[field] === 'object') {
+            // Handle {stage, description} shape specifically
+            if (result[field].description) {
+                result[field] = String(result[field].description)
+            } else {
+                result[field] = JSON.stringify(result[field])
+            }
+        }
+    }
+
+    return result
+}
+
 export default async function StudyPage({ params }: PageProps) {
     const { id } = await params
 
@@ -71,14 +103,13 @@ export default async function StudyPage({ params }: PageProps) {
             .eq('study_id', id)
             .order('signal_strength_rank', { ascending: true })
 
-        whitespaces = wsRes.data || []
+        // Sanitize whitespace records to ensure no object fields are passed as React children
+        whitespaces = (wsRes.data || []).map(sanitizeWhitespace)
 
     } catch (error) {
         // Fallback to mock data if ID is not found or connection fails (for demo feeling)
         // In production, you'd handle this better.
         console.log('Falling back to mock/empty data due to error')
-        // If we want to strictly fail:
-        // notFound()
 
         // For now, let's verify if we really want to render the page
         // If not found in DB, return 404

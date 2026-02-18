@@ -10,8 +10,8 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
-    height: 100%;
-    /* Match height of search input if needed */
+    height: auto;
+    align-self: stretch;
     white-space: nowrap;
 }
 
