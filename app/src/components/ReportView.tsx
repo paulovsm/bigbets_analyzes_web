@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MarkdownRenderer } from './MarkdownRenderer'
@@ -15,70 +16,73 @@ interface ReportViewProps {
 }
 
 // Configuration of Report Categories and their specific Keys
-const REPORT_STRUCTURE = {
-    value_chain: {
-        id: 'value_chain',
-        label: 'Cadeia de Valor',
-        icon: TrendingUp,
-        keys: [
-            '1.1.industry_key_players',
-            '1.2.industry_research',
-            '1.3.value_chain_analysis',
-            '1.4.value_chain_final_report'
-        ]
-    },
-    supply: {
-        id: 'supply',
-        label: 'Sinais de Oferta',
-        icon: ShoppingCart,
-        keys: [
-            '2.1.market_players_analysis',
-            '2.2.porter_six_forces',
-            '2.3.strategic_priorities',
-            '2.4.global_vs_local',
-            '2.5.current_opportunities',
-            '2.6.ma_movements',
-            '2.7.vc_investments',
-            '2.8.new_entrants',
-            '2.9.follow_the_money',
-            '2.10.future_trends',
-            '2.11.regulatory_changes',
-            '2.12.emerging_tech',
-            '2.13.startups',
-            '2.14.key_trends',
-            '2.15.opportunities',
-            '2.16.ongoing_changes'
-        ]
-    },
-    demand: {
-        id: 'demand',
-        label: 'Sinais de Demanda',
-        icon: Users,
-        keys: [
-            '3.1.customers_identification',
-            '3.2.demand_behavior',
-            '3.3.challenges_pains',
-            '3.4.social_listening',
-            '3.5.current_pains',
-            '3.6.behavior_changes',
-            '3.7.emerging_needs',
-            '3.8.consumption_trends'
-        ]
-    },
-    whitespaces: {
-        id: 'whitespaces',
-        label: 'Oportunidades',
-        icon: Lightbulb,
-        keys: [
-            '4.1.niche_markets',
-            '4.2.qualified_whitespaces',
-            '4.3.addressable_market',
-            '4.4.complete_report'
-        ]
-    }
-}
 
 export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
+    const t = useTranslations('ReportView')
+
+    const REPORT_STRUCTURE = {
+        value_chain: {
+            id: 'value_chain',
+            label: t('report_value_chain'),
+            icon: TrendingUp,
+            keys: [
+                '1.1.industry_key_players',
+                '1.2.industry_research',
+                '1.3.value_chain_analysis',
+                '1.4.value_chain_final_report'
+            ]
+        },
+        supply: {
+            id: 'supply',
+            label: t('report_supply_signals'),
+            icon: ShoppingCart,
+            keys: [
+                '2.1.market_players_analysis',
+                '2.2.porter_six_forces',
+                '2.3.strategic_priorities',
+                '2.4.global_vs_local',
+                '2.5.current_opportunities',
+                '2.6.ma_movements',
+                '2.7.vc_investments',
+                '2.8.new_entrants',
+                '2.9.follow_the_money',
+                '2.10.future_trends',
+                '2.11.regulatory_changes',
+                '2.12.emerging_tech',
+                '2.13.startups',
+                '2.14.key_trends',
+                '2.15.opportunities',
+                '2.16.ongoing_changes'
+            ]
+        },
+        demand: {
+            id: 'demand',
+            label: t('report_demand_signals'),
+            icon: Users,
+            keys: [
+                '3.1.customers_identification',
+                '3.2.demand_behavior',
+                '3.3.challenges_pains',
+                '3.4.social_listening',
+                '3.5.current_pains',
+                '3.6.behavior_changes',
+                '3.7.emerging_needs',
+                '3.8.consumption_trends'
+            ]
+        },
+        whitespaces: {
+            id: 'whitespaces',
+            label: t('report_opportunities'),
+            icon: Lightbulb,
+            keys: [
+                '4.1.niche_markets',
+                '4.2.qualified_whitespaces',
+                '4.3.addressable_market',
+                '4.4.complete_report'
+            ]
+        }
+    }
+
     const router = useRouter()
     const [activeTab, setActiveTab] = useState('overview')
     // State to track selected sub-report for each main category
@@ -315,20 +319,20 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                         disabled={isRefreshing}
                     >
                         <RefreshCw size={14} className={isRefreshing ? styles.spinning : ''} />
-                        Atualizar Dados
+                        {t('refresh_data')}
                     </button>
                 </div>
                 {isMobile ? (
                     /* Mobile Dropdown Navigation */
                     <div className={styles.mobileNavContainer}>
-                        <label htmlFor="section-select" className={styles.mobileNavLabel}>Seção:</label>
+                        <label htmlFor="section-select" className={styles.mobileNavLabel}>{t('section_label')}</label>
                         <select
                             id="section-select"
                             value={activeTab}
                             onChange={(e) => handleTabChange(e.target.value)}
                             className={styles.mobileSelect}
                         >
-                            <option value="overview">Visão Geral</option>
+                            <option value="overview">{t('overview')}</option>
                             {Object.entries(REPORT_STRUCTURE).map(([catId, config]) => {
                                 const availableCount = categoryContent[catId]?.length || 0
                                 return (
@@ -347,7 +351,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                             className={cn(styles.navItem, activeTab === 'overview' && styles.active)}
                         >
                             <LayoutDashboard size={18} />
-                            Visão Geral
+                            {t('overview')}
                         </button>
 
                         {Object.entries(REPORT_STRUCTURE).map(([catId, config]) => {
@@ -392,12 +396,12 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                             onClick={() => setSelectedWhitespace(null)}
                                         >
                                             <ArrowLeft size={16} />
-                                            Voltar ao Relatório
+                                            {t('back_to_report')}
                                         </button>
                                         <div className={styles.headerBadges}>
                                             <div className={styles.statusBadge}>
                                                 <Target size={14} />
-                                                <span>Sinal: {String(selectedWhitespace.signal_strength_rank ?? '')}/10</span>
+                                                <span>{t('signal')} {String(selectedWhitespace.signal_strength_rank ?? '')}/10</span>
                                             </div>
                                         </div>
                                     </div>
@@ -407,24 +411,24 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                 {/* 2. Key Metrics Row */}
                                 <div className={styles.metricsRow}>
                                     <div className={styles.metricCard}>
-                                        <span className={styles.metricLabel}>TAM (Total Addressable Market) <PieChart size={16} /></span>
+                                        <span className={styles.metricLabel}>{t('tam_card_title')} <PieChart size={16} /></span>
                                         <span className={`${styles.metricValue} ${styles.highlight}`}>{formatMoney(selectedWhitespace.tam_mid)}</span>
-                                        <span className={styles.metricSub}>Cenário Base (Mid)</span>
+                                        <span className={styles.metricSub}>{t('scenario_base')}</span>
                                     </div>
                                     <div className={styles.metricCard}>
-                                        <span className={styles.metricLabel}>SAM (Serviceable Market) <BarChart size={16} /></span>
+                                        <span className={styles.metricLabel}>{t('sam_card_title')} <BarChart size={16} /></span>
                                         <span className={styles.metricValue}>{formatMoney(selectedWhitespace.sam_mid)}</span>
-                                        <span className={styles.metricSub}>Cenário Base (Mid)</span>
+                                        <span className={styles.metricSub}>{t('scenario_base')}</span>
                                     </div>
                                     <div className={styles.metricCard}>
-                                        <span className={styles.metricLabel}>Captura Estimada <ArrowUpRight size={16} /></span>
+                                        <span className={styles.metricLabel}>{t('estimated_capture')} <ArrowUpRight size={16} /></span>
                                         {/* Example calculation or just ratio */}
                                         <span className={styles.metricValue}>
                                             {selectedWhitespace.tam_mid && selectedWhitespace.sam_mid
                                                 ? `${Math.round((selectedWhitespace.sam_mid / selectedWhitespace.tam_mid) * 100)}%`
                                                 : '-'}
                                         </span>
-                                        <span className={styles.metricSub}>% do TAM Acessível (SAM/TAM)</span>
+                                        <span className={styles.metricSub}>{t('percent_accessible_tam')}</span>
                                     </div>
                                 </div>
 
@@ -435,7 +439,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.dashboardCard}>
                                             <div className={styles.cardHeader}>
                                                 <Info className={styles.cardIcon} size={20} />
-                                                Descrição da Oportunidade
+                                                {t('opportunity_description')}
                                             </div>
                                             <p className={styles.descriptionText}>{parseDescription(selectedWhitespace.description)}</p>
                                         </div>
@@ -443,29 +447,29 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.dashboardCard}>
                                             <div className={styles.cardHeader}>
                                                 <TrendingUp className={styles.cardIcon} size={20} />
-                                                Análise de Mercado (TAM &amp; SAM)
+                                                {t('market_analysis')}
                                             </div>
                                             <table className={styles.marketTable}>
                                                 <thead>
                                                     <tr>
-                                                        <th>Cenário</th>
-                                                        <th>TAM (Total)</th>
-                                                        <th>SAM (Endereçável)</th>
+                                                        <th>{t('scenario')}</th>
+                                                        <th>{t('tam_total')}</th>
+                                                        <th>{t('sam_addressable')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td>Conservador (Low)</td>
+                                                        <td>{t('conservative')}</td>
                                                         <td>{formatMoney(selectedWhitespace.tam_low)}</td>
                                                         <td>{formatMoney(selectedWhitespace.sam_low)}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td className={styles.marketHighlight}>Base (Mid)</td>
+                                                        <td className={styles.marketHighlight}>{t('base')}</td>
                                                         <td className={styles.marketHighlight}>{formatMoney(selectedWhitespace.tam_mid)}</td>
                                                         <td className={styles.marketHighlight}>{formatMoney(selectedWhitespace.sam_mid)}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Otimista (High)</td>
+                                                        <td>{t('optimistic')}</td>
                                                         <td>{formatMoney(selectedWhitespace.tam_high)}</td>
                                                         <td>{formatMoney(selectedWhitespace.sam_high)}</td>
                                                     </tr>
@@ -476,15 +480,15 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={`${styles.dashboardCard}`} >
                                             <div className={styles.cardHeader}>
                                                 <FileText className={styles.cardIcon} size={20} />
-                                                Metodologia e Premissas
+                                                {t('methodology_and_assumptions')}
                                             </div>
                                             <div className={styles.assumptionsContainer}>
-                                                <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>Metodologia</h4>
+                                                <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>{t('methodology')}</h4>
                                                 <p className={styles.descriptionText} style={{ marginBottom: '1.5rem' }}>{parseDescription(selectedWhitespace.calculation_methodology) || 'Não especificada.'}</p>
 
                                                 {selectedWhitespace.key_assumptions && parseList(selectedWhitespace.key_assumptions).length > 0 && (
                                                     <>
-                                                        <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>Premissas Chave</h4>
+                                                        <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>{t('key_assumptions')}</h4>
                                                         <ul className={styles.dashboardList} style={{ marginBottom: '1.5rem' }}>
                                                             {parseList(selectedWhitespace.key_assumptions).map((item, i) => (
                                                                 <li key={i}>{item}</li>
@@ -493,7 +497,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                     </>
                                                 )}
 
-                                                <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>Premissas de Cálculo (Detalhes)</h4>
+                                                <h4 style={{ fontSize: '0.9rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>{t('calculation_details')}</h4>
                                                 {renderAssumptions(selectedWhitespace.calculation_assumptions)}
                                             </div>
                                         </div>
@@ -504,7 +508,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.dashboardCard}>
                                             <div className={styles.cardHeader}>
                                                 <Users className={styles.cardIcon} size={20} />
-                                                Sinais de Demanda
+                                                {t('demand_signals')}
                                             </div>
                                             <ul className={styles.dashboardList}>
                                                 {parseList(selectedWhitespace.demand_signals).map((item, i) => (
@@ -516,7 +520,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.dashboardCard}>
                                             <div className={styles.cardHeader}>
                                                 <ShoppingCart className={styles.cardIcon} size={20} />
-                                                Sinais de Oferta / Lacunas
+                                                {t('supply_signals')}
                                             </div>
                                             <ul className={styles.dashboardList}>
                                                 {parseList(selectedWhitespace.supply_signals).map((item, i) => (
@@ -528,7 +532,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         <div className={styles.dashboardCard} style={{ borderColor: 'rgba(239, 68, 68, 0.3)' }}>
                                             <div className={styles.cardHeader} style={{ color: '#ef4444' }}>
                                                 <AlertTriangle size={20} />
-                                                Riscos Associados
+                                                {t('associated_risks')}
                                             </div>
                                             <ul className={styles.dashboardList}>
                                                 {parseList(selectedWhitespace.risks).map((item, i) => (
@@ -541,7 +545,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                             <div className={styles.dashboardCard}>
                                                 <div className={styles.cardHeader}>
                                                     <TrendingDown className={styles.cardIcon} size={20} />
-                                                    Cadeia de Valor Afetada
+                                                    {t('affected_value_chain')}
                                                 </div>
                                                 <ul className={styles.dashboardList}>
                                                     {parseList(selectedWhitespace.affected_value_chain_steps).map((item, i) => (
@@ -557,25 +561,25 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                             <>
                                 {activeTab === 'overview' && (
                                     <div className={styles.section}>
-                                        <h1>Visão Geral do Estudo</h1>
+                                        <h1>{t('overview_title')}</h1>
                                         <div className={styles.statsGrid}>
                                             <div className={styles.statCard}>
-                                                <h3>Status</h3>
+                                                <h3>{t('status')}</h3>
                                                 <p>{String(study.status ?? '')}</p>
                                             </div>
                                             <div className={styles.statCard}>
-                                                <h3>Total de Relatórios</h3>
+                                                <h3>{t('total_reports')}</h3>
                                                 <p>{new Set(reports.map(r => r.report_key)).size}</p>
                                             </div>
                                             <div className={styles.statCard}>
-                                                <h3>Whitespaces</h3>
+                                                <h3>{t('whitespaces')}</h3>
                                                 <p>{whitespaces.length}</p>
                                             </div>
                                         </div>
 
                                         {whitespaces.length > 0 && (
                                             <div className={styles.whitespacesSection}>
-                                                <h2>Oportunidades Identificadas</h2>
+                                                <h2>{t('identified_opportunities')}</h2>
                                                 <div className={styles.whitespacesGrid}>
                                                     {whitespaces.map((ws: any) => (
                                                         <div
@@ -586,7 +590,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                         >
                                                             <div className={styles.wsHeader}>
                                                                 <h3>{String(ws.name ?? '')}</h3>
-                                                                <span className={styles.rank}>Força do Sinal: {String(ws.signal_strength_rank ?? '')}/10</span>
+                                                                <span className={styles.rank}>{t('signal_strength')} {String(ws.signal_strength_rank ?? '')}/10</span>
                                                             </div>
                                                             <p className={styles.wsDesc}>{parseDescription(ws.description)}</p>
 
@@ -594,7 +598,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                             <div className={styles.wsDetails}>
                                                                 {ws.demand_signals && (
                                                                     <div className={styles.detailBlock}>
-                                                                        <h4>Sinais de Demanda (Preview)</h4>
+                                                                        <h4>{t('demand_preview')}</h4>
                                                                         <ul>
                                                                             {parseList(ws.demand_signals).slice(0, 2).map((s: string, i: number) => <li key={i}>{s}</li>)}
                                                                         </ul>
@@ -603,7 +607,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                                 {ws.supply_signals && (
                                                                     <div className={styles.detailBlock}>
-                                                                        <h4>Sinais de Oferta (Preview)</h4>
+                                                                        <h4>{t('supply_preview')}</h4>
                                                                         <ul>
                                                                             {parseList(ws.supply_signals).slice(0, 2).map((s: string, i: number) => <li key={i}>{s}</li>)}
                                                                         </ul>
@@ -612,7 +616,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                                 {ws.risks && (
                                                                     <div className={styles.detailBlock}>
-                                                                        <h4>Riscos (Preview)</h4>
+                                                                        <h4>{t('risks_preview')}</h4>
                                                                         <ul>
                                                                             {parseList(ws.risks).slice(0, 2).map((s: string, i: number) => <li key={i}>{s}</li>)}
                                                                         </ul>
@@ -622,7 +626,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                             {ws.tam_mid && (
                                                                 <div className={styles.tamBox}>
-                                                                    <strong>TAM (Base):</strong> {formatMoney(ws.tam_mid)}
+                                                                    <strong>{t('tam_base')}</strong> {formatMoney(ws.tam_mid)}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -644,7 +648,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                         {categoryContent[activeTab]?.length > 0 ? (
                                             <div className={styles.reportContainer}>
                                                 <div className={styles.subSidebar}>
-                                                    <h3>Capítulos</h3>
+                                                    <h3>{t('chapters')}</h3>
                                                     {isMobile ? (
                                                         /* Mobile Dropdown for Chapters */
                                                         <select
@@ -652,7 +656,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                             onChange={(e) => setSubSelection(prev => ({ ...prev, [activeTab]: e.target.value }))}
                                                             className={styles.mobileSelect}
                                                         >
-                                                            <option value="">Selecione um capítulo</option>
+                                                            <option value="">{t('select_chapter')}</option>
                                                             {categoryContent[activeTab].map((report: any) => (
                                                                 <option key={report.key} value={report.key}>
                                                                     {report.label}
@@ -693,7 +697,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                                         return (
                                                                             <div className={styles.versionSelector}>
-                                                                                <label>Versão:</label>
+                                                                                <label>{t('version')}</label>
                                                                                 <select
                                                                                     value={selectedVer}
                                                                                     onChange={(e) => setSelectedVersions(prev => ({
@@ -703,7 +707,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                                                 >
                                                                                     {currentReport.versions.map((v: any) => (
                                                                                         <option key={v.version} value={v.version}>
-                                                                                            v{v.version} {v.version === currentReport.versions[0].version ? '(Atual)' : ''}
+                                                                                            v{v.version} {v.version === currentReport.versions[0].version ? t('current_version') : ''}
                                                                                         </option>
                                                                                     ))}
                                                                                 </select>
@@ -729,21 +733,21 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                             />
                                                         </div>
                                                     ) : (
-                                                        <p className={styles.placeholderText}>Selecione um capítulo para ler.</p>
+                                                        <p className={styles.placeholderText}>{t('select_chapter')} para ler.</p>
                                                     )}
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className={styles.emptyState}>
                                                 <FileText size={48} />
-                                                <p>Nenhum relatório gerado para esta seção ainda.</p>
+                                                <p>{t('no_reports')}</p>
                                             </div>
                                         )}
 
                                         {/* Special Case: Show Whitespace Cards below reports if in Whitespaces tab */}
                                         {activeTab === 'whitespaces' && whitespaces.length > 0 && (
                                             <div className={styles.whitespacesSection}>
-                                                <h2>Oportunidades Identificadas</h2>
+                                                <h2>{t('identified_opportunities')}</h2>
                                                 <div className={styles.whitespacesGrid}>
                                                     {whitespaces.map((ws: any) => (
                                                         <div
@@ -754,14 +758,14 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
                                                         >
                                                             <div className={styles.wsHeader}>
                                                                 <h3>{String(ws.name ?? '')}</h3>
-                                                                <span className={styles.rank}>Força do Sinal: {String(ws.signal_strength_rank ?? '')}/10</span>
+                                                                <span className={styles.rank}>{t('signal_strength')} {String(ws.signal_strength_rank ?? '')}/10</span>
                                                             </div>
                                                             <p className={styles.wsDesc}>{parseDescription(ws.description)}</p>
 
                                                             <div className={styles.wsDetails}>
                                                                 {ws.demand_signals && (
                                                                     <div className={styles.detailBlock}>
-                                                                        <h4>Sinais de Demanda (Preview)</h4>
+                                                                        <h4>{t('demand_preview')}</h4>
                                                                         <ul>
                                                                             {parseList(ws.demand_signals).slice(0, 2).map((s: string, i: number) => <li key={i}>{s}</li>)}
                                                                         </ul>
@@ -770,7 +774,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                                 {ws.supply_signals && (
                                                                     <div className={styles.detailBlock}>
-                                                                        <h4>Sinais de Oferta (Preview)</h4>
+                                                                        <h4>{t('supply_preview')}</h4>
                                                                         <ul>
                                                                             {parseList(ws.supply_signals).slice(0, 2).map((s: string, i: number) => <li key={i}>{s}</li>)}
                                                                         </ul>
@@ -779,7 +783,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                                 {ws.risks && (
                                                                     <div className={styles.detailBlock}>
-                                                                        <h4>Riscos (Preview)</h4>
+                                                                        <h4>{t('risks_preview')}</h4>
                                                                         <ul>
                                                                             {parseList(ws.risks).slice(0, 2).map((s: string, i: number) => <li key={i}>{s}</li>)}
                                                                         </ul>
@@ -789,7 +793,7 @@ export function ReportView({ study, reports, whitespaces }: ReportViewProps) {
 
                                                             {ws.tam_mid && (
                                                                 <div className={styles.tamBox}>
-                                                                    <strong>TAM (Base):</strong> {formatMoney(ws.tam_mid)}
+                                                                    <strong>{t('tam_base')}</strong> {formatMoney(ws.tam_mid)}
                                                                 </div>
                                                             )}
                                                         </div>

@@ -1,8 +1,11 @@
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import styles from './page.module.css'
 import { ArrowRight, BarChart3, BrainCircuit, Globe2, Layers, Search, Zap } from 'lucide-react'
 
 export default function Home() {
+  const t = useTranslations('Index')
+
   return (
     <div className={styles.container}>
       {/* Hero Section */}
@@ -10,23 +13,22 @@ export default function Home() {
         <div className={styles.heroContent}>
           <div className={styles.badge}>
             <span className={styles.badgeIcon}>✨</span>
-            <p>Nova Geração de Pesquisa de Mercado</p>
+            <p>{t('badge')}</p>
           </div>
           <h1 className={styles.heroTitle}>
-            Identifique <span className={styles.gradientText}>Whitespaces</span> com
-            <br /> Inteligência Artificial
+            {t('title_part1')}<span className={styles.gradientText}>{t('title_highlight')}</span>
+            <br /> {t('title_part2')}
           </h1>
           <p className={styles.heroSubtitle}>
-            Nossos agentes autônomos analisam cadeias de valor inteiras, cruzam sinais de oferta e demanda
-            e descobrem oportunidades de negócio ocultas em minutos.
+            {t('subtitle')}
           </p>
           <div className={styles.heroActions}>
             <Link href="/reports" className={styles.primaryCta}>
-              Explorar Relatórios
+              {t('cta_primary')}
               <ArrowRight size={20} />
             </Link>
             <a href="#features" className={styles.secondaryCta}>
-              Como Funciona
+              {t('cta_secondary')}
             </a>
           </div>
         </div>
@@ -40,29 +42,29 @@ export default function Home() {
       {/* Features Section */}
       <section id="features" className={styles.features}>
         <div className={styles.sectionHeader}>
-          <h2>Análise 360º de Mercado</h2>
-          <p>Uma suite completa de investigação conduzida por agentes especializados.</p>
+          <h2>{t('features_title')}</h2>
+          <p>{t('features_subtitle')}</p>
         </div>
         <div className={styles.featuresGrid}>
           <FeatureCard
             icon={<Layers size={32} />}
-            title="Cadeia de Valor"
-            description="Mapeamento detalhado de todos os elos da indústria, identificando gargalos e ineficiências."
+            title={t('feat_value_chain_title')}
+            description={t('feat_value_chain_desc')}
           />
           <FeatureCard
             icon={<BarChart3 size={32} />}
-            title="Sinais de Demanda"
-            description="Monitoramento de tendências de consumo, mudança de comportamento e necessidades não atendidas."
+            title={t('feat_demand_title')}
+            description={t('feat_demand_desc')}
           />
           <FeatureCard
             icon={<Globe2 size={32} />}
-            title="Sinais de Oferta"
-            description="Análise da concorrência, novos entrantes, patentes e investimentos no setor."
+            title={t('feat_supply_title')}
+            description={t('feat_supply_desc')}
           />
           <FeatureCard
             icon={<BrainCircuit size={32} />}
-            title="Identificação de Whitespaces"
-            description="Algoritmos que cruzam dados para apontar onde a oferta atual não atende a demanda futura."
+            title={t('feat_whitespace_title')}
+            description={t('feat_whitespace_desc')}
           />
         </div>
       </section>
@@ -70,26 +72,26 @@ export default function Home() {
       {/* Process Section */}
       <section className={styles.process}>
         <div className={styles.sectionHeader}>
-          <h2>O Poder da Agência Autônoma</h2>
-          <p>Deixe os robôs fazerem o trabalho pesado de pesquisa.</p>
+          <h2>{t('process_title')}</h2>
+          <p>{t('process_subtitle')}</p>
         </div>
         <div className={styles.processSteps}>
           <Step
             number="01"
-            title="Definição do Escopo"
-            description="Você define a indústria e região alvo. O Orquestrador planeja a estratégia de pesquisa."
+            title={t('step1_title')}
+            description={t('step1_desc')}
           />
           <div className={styles.connector} />
           <Step
             number="02"
-            title="Deep Research"
-            description="Agentes navegam na web, leem relatórios e extraem dados estruturados sobre o mercado."
+            title={t('step2_title')}
+            description={t('step2_desc')}
           />
           <div className={styles.connector} />
           <Step
             number="03"
-            title="Síntese e Relatório"
-            description="Consolidação dos insights em um dashboard interativo com as maiores oportunidades rankeadas."
+            title={t('step3_title')}
+            description={t('step3_desc')}
           />
         </div>
       </section>
@@ -97,10 +99,10 @@ export default function Home() {
       {/* CTA Section */}
       <section className={styles.ctaSection}>
         <div className={styles.ctaContent}>
-          <h2>Pronto para descobrir sua próxima Big Bet?</h2>
-          <p>Acesse agora a biblioteca de estudos gerados.</p>
+          <h2>{t('cta_bottom_title')}</h2>
+          <p>{t('cta_bottom_subtitle')}</p>
           <Link href="/reports" className={styles.primaryCta}>
-            Acessar Plataforma
+            {t('cta_bottom_btn')}
             <Zap size={20} fill="currentColor" />
           </Link>
         </div>

@@ -1,10 +1,9 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { motion } from 'framer-motion'
 import { Calendar, Globe, MapPin, Users } from 'lucide-react'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { useTranslations, useLocale } from 'next-intl'
 import styles from './StudyCard.module.css'
 
 interface StudyCardProps {
@@ -17,6 +16,26 @@ interface StudyCardProps {
 }
 
 export function StudyCard({ id, industry, region, createdAt, status, index = 0 }: StudyCardProps) {
+    const t = useTranslations('StudyCard')
+    const locale = useLocale()
+
+    const date = new Date(createdAt)
+    const formattedDate = new Intl.DateTimeFormat(locale, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    }).format(date)
+
+    const statusLabel = () => {
+        switch (status) {
+            case 'completed': return t('status_completed')
+            case 'in_progress': return t('status_in_progress')
+            case 'pending': return t('status_pending')
+            case 'failed': return t('status_failed')
+            default: return status
+        }
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -26,7 +45,7 @@ export function StudyCard({ id, industry, region, createdAt, status, index = 0 }
             <Link href={`/reports/${id}`} className={styles.card}>
                 <div className={styles.header}>
                     <h3 className={styles.title}>{industry}</h3>
-                    <span className={`${styles.status} ${styles[status]}`}>{statusLabel(status)}</span>
+                    <span className={`${styles.status} ${styles[status]}`}>{statusLabel()}</span>
                 </div>
 
                 <div className={styles.meta}>
@@ -36,20 +55,10 @@ export function StudyCard({ id, industry, region, createdAt, status, index = 0 }
                     </div>
                     <div className={styles.metaItem}>
                         <Calendar size={16} />
-                        {format(new Date(createdAt), "d 'de' MMM, yyyy", { locale: ptBR })}
+                        {formattedDate}
                     </div>
                 </div>
             </Link>
         </motion.div>
     )
-}
-
-function statusLabel(status: string) {
-    switch (status) {
-        case 'completed': return 'Concluído'
-        case 'in_progress': return 'Em Progresso'
-        case 'pending': return 'Pendente'
-        case 'failed': return 'Falhou'
-        default: return status
-    }
 }

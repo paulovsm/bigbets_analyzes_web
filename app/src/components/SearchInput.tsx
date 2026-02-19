@@ -1,17 +1,20 @@
 'use client'
 
 import { Search, Loader2 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { useRouter, usePathname } from '@/i18n/routing'
 import { useEffect, useState, useTransition } from 'react'
+import { useTranslations } from 'next-intl'
 import styles from './SearchInput.module.css'
 
 export function SearchInput() {
+    const t = useTranslations('SearchInput')
     const router = useRouter()
+    const pathname = usePathname()
     const searchParams = useSearchParams()
     const [value, setValue] = useState(searchParams.get('q') || '')
     const [isPending, startTransition] = useTransition()
 
-    // Simple debounce logic inside effect
     useEffect(() => {
         const timer = setTimeout(() => {
             const currentQuery = searchParams.get('q') || ''
@@ -23,13 +26,14 @@ export function SearchInput() {
                     params.delete('q')
                 }
                 startTransition(() => {
-                    router.replace(`/reports?${params.toString()}`)
+                    const query = params.toString() ? `?${params.toString()}` : ''
+                    router.replace(`${pathname}${query}`)
                 })
             }
         }, 500)
 
         return () => clearTimeout(timer)
-    }, [value, router, searchParams])
+    }, [value, router, pathname, searchParams])
 
     return (
         <div className={styles.searchWrapper}>
@@ -39,7 +43,7 @@ export function SearchInput() {
                     type="text"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    placeholder="Buscar estudos..."
+                    placeholder={t('placeholder')}
                     className={styles.input}
                 />
                 {isPending && <Loader2 className={styles.spinner} size={16} />}

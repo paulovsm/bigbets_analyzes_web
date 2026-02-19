@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { StudyCard } from '@/components/StudyCard'
 import { SearchInput } from '@/components/SearchInput'
 import { RefreshStudiesButton } from '@/components/RefreshStudiesButton'
+import { getTranslations } from 'next-intl/server'
 import styles from './page.module.css'
 
 // Mock data if DB connection fails
@@ -36,19 +37,12 @@ interface ReportsPageProps {
 }
 
 export default async function ReportsPage({ searchParams }: ReportsPageProps) {
+    const t = await getTranslations('ReportsPage')
     const { q } = await searchParams
     let studies = []
 
     try {
         if (q) {
-            // Use the RPC function for search if available
-            // Or simpler ILIKE approach if RPC not fully set up
-
-            // Let's try standard filtering first as it's safer without migrating DB functions manually
-            // But the user DOES have search_studies defined in schema.md.
-            // Let's assume it might not be deployed yet, so fallback to ILIKE OR.
-
-            // Actually, let's use the RPC if possible, but ILIKE is robust for this simple app.
             const { data, error } = await supabase
                 .from('whitespace_studies')
                 .select('*')
@@ -71,7 +65,6 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
 
     } catch (error) {
         console.error('Error fetching studies:', error)
-        // Only use mock if absolutely no data and no query (to avoid confusing search results)
         if (!q) studies = MOCK_STUDIES
         else studies = []
     }
@@ -79,9 +72,9 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <h1 className={styles.title}>Relatórios de Mercado</h1>
+                <h1 className={styles.title}>{t('title')}</h1>
                 <p className={styles.subtitle}>
-                    Acompanhe os estudos gerados pelos agentes autônomos.
+                    {t('subtitle')}
                 </p>
                 <div className={styles.controlsContainer}>
                     <div className={styles.searchWrapper}>
@@ -106,7 +99,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
                     ))
                 ) : (
                     <div className={styles.empty}>
-                        <p>Nenhum relatório encontrado.</p>
+                        <p>{t('no_reports')}</p>
                     </div>
                 )}
             </div>
